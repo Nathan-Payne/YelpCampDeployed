@@ -52,15 +52,17 @@ passport.deserializeUser(User.deserializeUser());   //also from passport local m
 //DATABASE MONGOOSE
 // mongoose.connect('mongodb://localhost/yelp_camp', {useNewUrlParser: true});
 mongoose.connect('mongodb+srv://paynee:pass@cluster0-m8mwu.mongodb.net/test?retryWrites=true&w=majority', {
+    dbName: 'Cluster0',
     useNewUrlParser: true,
     useCreateIndex: true
 }).then(() => {
     console.log("Connected to ATLAS DB!");
 }).catch(err => {
-    console.log('mongoose connection error:', err.message);
+    console.log('initial mongoose connection error:', err.message);
 });
-// var db = mongoose.connection;
-// db.on('error', console.error.bind(console, "yelp_camp connection error:"));
+mongoose.connection.on('error', err => {
+    console.log("ongoing yelp_camp connection error:", err.message)
+});
 
 //seedDb();   //function from seeds.js to remove all data from database and seed afresh
 
