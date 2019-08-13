@@ -50,9 +50,9 @@ passport.serializeUser(User.serializeUser());   // use static serialize and dese
 passport.deserializeUser(User.deserializeUser());   //also from passport local mongoose 
 
 //DATABASE MONGOOSE
-// mongoose.connect('mongodb://localhost/yelp_camp', {useNewUrlParser: true});
-mongoose.connect('mongodb+srv://paynee:pass@cluster0-m8mwu.mongodb.net/test?retryWrites=true&w=majority', {
-    dbName: 'test',
+mongoose.connect(process.env.YELPCAMP_DBURL, {
+// mongoose.connect('mongodb+srv://paynee:pass@cluster0-m8mwu.mongodb.net/test?retryWrites=true&w=majority', {
+    // dbName: 'test', //initial name of ATLAS db - it also appears in uri above
     useNewUrlParser: true,
     useCreateIndex: true
 }).then(() => {
