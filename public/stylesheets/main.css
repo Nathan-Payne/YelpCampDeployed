@@ -1,0 +1,21 @@
+
+
+.campground-image {
+    width: 100%;
+    max-height: 90vh;
+    object-fit: cover;
+    object-position: top;
+}
+
+#comments-card {
+    margin: 3rem 0;
+}
+
+#comments-card .card-body {
+    padding: 0;
+}
+
+.card-body div {
+    margin: 0.1rem 0.3rem;
+}
+
