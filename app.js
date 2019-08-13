@@ -59,8 +59,8 @@ mongoose.connect('mongodb+srv://paynee:pass@cluster0-m8mwu.mongodb.net/test?retr
 }).catch(err => {
     console.log('mongoose connection error:', err.message);
 });
-var db = mongoose.connection;
-db.on('error', console.error.bind(console, "yelp_camp connection error:"));
+// var db = mongoose.connection;
+// db.on('error', console.error.bind(console, "yelp_camp connection error:"));
 
 //seedDb();   //function from seeds.js to remove all data from database and seed afresh
 
