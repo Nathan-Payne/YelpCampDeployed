@@ -49,9 +49,11 @@ passport.use(new LocalStrategy(User.authenticate()));     //- authenticate() met
 passport.serializeUser(User.serializeUser());   // use static serialize and deserialize of model for passport session support
 passport.deserializeUser(User.deserializeUser());   //also from passport local mongoose 
 
-//DATABASE MONGOOSE
-mongoose.connect(process.env.YELPCAMP_DBURL, {
-// mongoose.connect('mongodb+srv://paynee:pass@cluster0-m8mwu.mongodb.net/test?retryWrites=true&w=majority', {
+//DATABASE MONGOOSE - process.env are environment variables, hidden from view, allows local development environment
+//and heroku deployed environment to operate simultaneously
+let url = process.env.YELPCAMP_DBURL || "mongodb://localhost/yelp_camp";
+mongoose.connect(url, {
+// mongoose.connect('heroku db address went here', {
     // dbName: 'test', //initial name of ATLAS db - it also appears in uri above
     useNewUrlParser: true,
     useCreateIndex: true
