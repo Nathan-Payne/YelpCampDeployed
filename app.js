@@ -52,7 +52,7 @@ passport.deserializeUser(User.deserializeUser());   //also from passport local m
 //DATABASE MONGOOSE
 // mongoose.connect('mongodb://localhost/yelp_camp', {useNewUrlParser: true});
 mongoose.connect('mongodb+srv://paynee:pass@cluster0-m8mwu.mongodb.net/test?retryWrites=true&w=majority', {
-    dbName: 'Cluster0',
+    dbName: 'test',
     useNewUrlParser: true,
     useCreateIndex: true
 }).then(() => {
