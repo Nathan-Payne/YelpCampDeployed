@@ -11,7 +11,7 @@ const Comment = require("./models/comment");
 const User = require("./models/user"); 
 const methodOverride = require("method-override");//can use HTTP verbs such as PUT or DELETE in places where the client doesn't support it
 const flash = require('connect-flash');// flash messages informing user of err/succes 
-const PORT = process.env.PORT || 3000
+const PORT = process.env.PORT || 5000
 
 
 const commentRoutes = require("./routes/comments"); //refactored route logic into separate dirs
@@ -50,7 +50,15 @@ passport.serializeUser(User.serializeUser());   // use static serialize and dese
 passport.deserializeUser(User.deserializeUser());   //also from passport local mongoose 
 
 //DATABASE MONGOOSE
-mongoose.connect('mongodb://localhost/yelp_camp', {useNewUrlParser: true});
+// mongoose.connect('mongodb://localhost/yelp_camp', {useNewUrlParser: true});
+mongoose.connect('mongodb+srv://paynee:pass@cluster0-m8mwu.mongodb.net/test?retryWrites=true&w=majority', {
+    useNewUrlParser: true,
+    useCreateIndex: true
+}).then(() => {
+    console.log("Connected to ATLAS DB!");
+}).catch(err => {
+    console.log('mongoose connection error:', err.message);
+});
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, "yelp_camp connection error:"));
 
