@@ -2,6 +2,16 @@ const express = require("express");
 const router = express.Router();
 const Campground = require("../models/campground");
 const middleware = require("../middleware"); //index.js files automatically required when parent folder required
+var NodeGeocoder = require("node-geocoder");
+
+var options = {
+    provider: 'google',
+    httpAdapter: 'https',
+    apiKey: process.env.GEOCODER_API_KEY,
+    formatter: null
+};
+
+var geocoder = NodeGeocoder(options);
 
 // INDEX ROUTE - show all campgrounds
 router.get("/", (req, res) => {
