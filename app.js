@@ -33,34 +33,34 @@ app.use(require("express-session")({
     saveUninitialized: false    // don't create session until something stored
 }));
 //must be after require express-session or /secret page does not redirect correctly after login
-app.use(passport.initialize());  //required anytime passport used
-app.use(passport.session());    //required anytime passport used
+app.use(passport.initialize());     //required anytime passport used
+app.use(passport.session());        //required anytime passport used
 
 //custom middleware - function written called on every route - in this case the currentUser variable
 app.use(function(req, res, next){
     res.locals.currentUser = req.user;
-    res.locals.error = req.flash('error'); //error is a key to certain message
+    res.locals.error = req.flash('error');      //error is a key to certain message
     res.locals.success = req.flash('success');
-    next(); //required or code hangs on middleware and doesnt move to next function
+    next();                                     //required or code hangs on middleware and doesnt move to next function
 });
 
 // use static authenticate method of model in LocalStrategy - essentially passportLocalMongoose has written the
-passport.use(new LocalStrategy(User.authenticate()));     //- authenticate() method already, we are using instead of writing a custom function 
-passport.serializeUser(User.serializeUser());   // use static serialize and deserialize of model for passport session support
-passport.deserializeUser(User.deserializeUser());   //also from passport local mongoose 
+passport.use(new LocalStrategy(User.authenticate()));   //- authenticate() method already, we are using instead of writing a custom function 
+passport.serializeUser(User.serializeUser());           // use static serialize and deserialize of model for passport session support
+passport.deserializeUser(User.deserializeUser());       //also from passport local mongoose 
 
 //DATABASE MONGOOSE - process.env are environment variables, hidden from view, allows local development environment
 //and heroku deployed environment to operate simultaneously
-let url = process.env.YELPCAMP_DBURL || "mongodb://localhost/yelp_camp";
+let url = process.env.YELPCAMP_DBURL || 'mongodb://localhost/yelp_camp';
 mongoose.connect(url, {
 // mongoose.connect('heroku db address went here', {
     // dbName: 'test', //initial name of ATLAS db - it also appears in uri above
     useNewUrlParser: true,
     useCreateIndex: true
 }).then(() => {
-    console.log("Connected to ATLAS DB!");
+    console.log(`Connected to ${url}`);
 }).catch(err => {
-    console.log('initial mongoose connection error:', err.message);
+    console.log("initial mongoose connection error:", err.message);
 });
 mongoose.connection.on('error', err => {
     console.log("ongoing yelp_camp connection error:", err.message)
