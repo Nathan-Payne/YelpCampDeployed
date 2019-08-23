@@ -33,12 +33,26 @@ router.post("/", middleware.isLoggedin, (req, res) => {
     };
     const price = req.body.price;
 
-    var newCampground = {name:name, image:image, description:desc, author:author, price:price};
-    //create new Campground and save to DB
-    Campground.create(newCampground, (err, campground) =>{
-        if(err) return console.error(err);
-        //else redirect to campgrounds page
-        res.redirect("/campgrounds"); //default redirect is GET
+    geocoder.geocode(req.body.location, function (err, data) {
+        if (err || !data.length) {
+            //console.log(err); //use to debug check restrictions 
+            req.flash('error', 'Invalid address');
+            return res.redirect('back');
+        }
+        var lat = data[0].latitude;
+        var lng = data[0].longitude;
+        var location = data[0].formattedAddress;
+        var newCampground = {name: name, image: image, description: desc, price: price, author:author, location: location, lat: lat, lng: lng};
+        // Create a new campground and save to DB
+        Campground.create(newCampground, function(err, newlyCreated){
+            if(err){
+                console.log(err);
+            } else {
+                //redirect back to campgrounds page
+                console.log(newlyCreated);
+                res.redirect("/campgrounds");
+            }
+        });
     });
 });
 
@@ -73,14 +87,25 @@ router.get("/:id/edit", middleware.checkCampgroundOwnership, (req, res)=>{
 router.put("/:id", middleware.checkCampgroundOwnership, (req, res)=>{
 //find and update correct campground -findByIdAndUpdate needs (id, [data to update], callback)
 //-can use req.body.campground due to object campground[name]..etc. in edit.ejs
-    Campground.findByIdAndUpdate(req.params.id, req.body.campground, (err, updatedCampground)=>{
-        if(err){
-            res.redirect("/campgrounds");
-        } else {
-            res.redirect("/campgrounds/" + req.params.id);
+    geocoder.geocode(req.body.location, function(err, data){
+        if(err || !data.length){
+            req.flash('error', 'Invalid address');
+            return res.redirect('back');
         }
-    });
-    //redirect back to show page of campground
+        req.body.campground.lat = data[0].latitude;
+        req.body.campground.lng = data[0].longitude;
+        req.body.campground.location = data[0].formattedAddress;
+
+        Campground.findByIdAndUpdate(req.params.id, req.body.campground, (err, updatedCampground)=>{
+            if(err){
+                req.flash("error", err.message);
+                res.redirect("back");
+            } else {
+                req.flash("success","Successfully Updated!");
+                res.redirect("/campgrounds/" + req.params.id);
+            }
+        });
+    })
 });
 
 //===========DELETE/DESTROY ROUTE=============
