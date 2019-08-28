@@ -26,6 +26,8 @@ app.use(express.static(__dirname + "/public"))  //__dirname refers to directory 
 app.use(methodOverride("_method"));
 app.use(flash());
 
+app.locals.moment = require('moment');
+
 //PASSPORT CONFIG       //secret used inside of sessions to encode and decode data
 app.use(require("express-session")({
     secret: "Nyquist",
