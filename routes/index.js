@@ -16,6 +16,9 @@ router.get("/register", (req, res)=>{
 //create user
 router.post("/register", (req, res)=>{
     let newUser = new User({username: req.body.username})
+    if(req.body.adminCode === 'secretcode') {
+        newUser.isAdmin = true;
+    }
     User.register(newUser, req.body.password, (err, user)=>{ //register hashes password automatically before sending to db
         if (err){
             console.error(err);
