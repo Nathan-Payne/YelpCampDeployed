@@ -15,7 +15,7 @@ middlewareObj.checkCampgroundOwnership = function(req, res, next){
             } else {
                 //logged in - is author id same as user id - foundCampground.author.id is a mongoose object, req.user._id is a string
                 //.equals is a mogoose method allowing mogooseObj to string comparison
-                if(foundCampground.author.id.equals(req.user._id)){
+                if(foundCampground.author.id.equals(req.user._id) || req.user.isAdmin){
                     next();
                 } else {
                     req.flash('error', "You don't have the required permission.");
@@ -39,7 +39,7 @@ middlewareObj.checkCommentOwnership = function(req, res, next){
             } else {
                 //logged in - is author id same as user id - foundComment.author.id is a mongoose object, req.user.comment_id is a string
                 //.equals is a mogoose method allowing mogooseObj to string comparison
-                if(foundComment.author.id.equals(req.user._id)){
+                if(foundComment.author.id.equals(req.user._id) || req.user.isAdmin){
                     next();
                 } else {
                     req.flash('error', 'You do not have permission.');
