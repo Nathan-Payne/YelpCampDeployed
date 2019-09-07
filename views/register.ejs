@@ -1,11 +1,54 @@
 <% include ./partials/header %>
-<h1>Sign Up</h1>
 
-<form action="/register" method="POST">
-    <input type="text" name="username" placeholder="username">
-    <input type="password" name="password" placeholder="password">
-    <input type="text" name="adminCode" placeholder="Admin">
-    <button>Sign Up</button>
-</form>
+<div class="container text-center">
+    <h1>Sign Up</h1>
+    <form action="/register" method="POST">
+        <div class="form-group row justify-content-center">
+            <div class="col-sm-8">
+                <input class="form-control" type="text" name="username" placeholder="username">
+            </div>
+        </div>
+        <div class="form-group row justify-content-center">
+            <div class="col-sm-8">
+                <input class="form-control" type="password" name="password" placeholder="password">
+            </div>
+        </div>
+        <div class="form-group row justify-content-center">
+            <div class="col-sm-8">
+                <input class="form-control" type="text" name="adminCode" placeholder="Admin">
+            </div>
+        </div>
+        <div class="form-group row justify-content-center">
+            <div class="col-sm-8">
+                <input class="form-control" type="text" name="firstName" placeholder="First Name">
+            </div>
+        </div>
+        <div class="form-group row justify-content-center">
+            <div class="col-sm-8">
+                <input class="form-control" type="text" name="lastName" placeholder="Last Name">
+            </div>
+        </div>
+        <div class="form-group row justify-content-center">
+            <div class="col-sm-8">
+                <input class="form-control" type="text" name="avatar" placeholder="image URL">
+            </div>
+        </div>
+        <div class="form-group row justify-content-center">
+            <div class="col-sm-8">
+                <textarea class="form-control" type="text" name="bio" placeholder="Write something about yourself..."></textarea>
+            </div>
+        </div>
+        <div class="form-group row justify-content-center">
+            <div class="col-sm-8">
+                <input class="form-control" type="email" name="email" placeholder="example@example.com">
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-sm-8">
+                <button class="btn btn-lg btn-primary btn-block">Sign Up</button>
+            </div>
+        </div>
+    </form>
+</div>
 
 <% include ./partials/footer %>
