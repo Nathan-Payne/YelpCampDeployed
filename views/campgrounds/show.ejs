@@ -27,7 +27,7 @@
                     <div class="row">
                         <div class="col-md-8">
                             <small class="text-muted">
-                                Submitted by <%= campground.author.username %>, 
+                                Submitted by <a href="/users/<%= campground.author.id %>"><%= campground.author.username %></a>, 
                                 <%= moment(campground.createdAt).fromNow() %>
                             </small>
                         </div>

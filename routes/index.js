@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/user"); 
 const passport = require('passport');
+const Campground = require("../models/campground");
 
 //app.METHOD(PATH, HANDLERfunction) - express route definition (app is an instance of express)
 //root route
@@ -15,7 +16,14 @@ router.get("/register", (req, res)=>{
 });
 //create user
 router.post("/register", (req, res)=>{
-    let newUser = new User({username: req.body.username})
+    let newUser = new User({
+        username: req.body.username,
+        avatar: req.body.avatar,
+        bio: req.body.bio,
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        email: req.body.email,
+    })
     if(req.body.adminCode === 'secretcode') {
         newUser.isAdmin = true;
     }
@@ -51,14 +59,23 @@ router.get('/logout', (req, res)=>{
     res.redirect('/campgrounds');
 });
 
-
-//========MIDDLEWARE======= -check if user is logged in if certain functions performed
-function isLoggedin(req, res, next){
-    if(req.isAuthenticated()){
-        return next();
-    }
-    res.redirect('/login');
-};
+//===== USER PROFILE =======
+router.get("/users/:id", (req, res) => {
+    User.findById(req.params.id, function(err, foundUser){
+        if(err){
+            req.flash("error", "Something went wrong...");
+            res.redirect("/");
+        }
+        //finds campgrounds where author id is the same as mongoose user id and passes to user-profile page as campgrounds
+        Campground.find().where("author.id").equals(foundUser._id).exec(function(err, campgrounds){
+            if(err){
+                req.flash("error", "Something went wrong...");
+                res.redirect("/");
+            };
+            res.render("users/show", {user: foundUser, campgrounds: campgrounds});
+        });
+    });
+});
 
 
 module.exports = router;
