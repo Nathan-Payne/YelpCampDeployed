@@ -1,4 +1,4 @@
-
+require('dotenv').config();
 const express = require("express"); //JS web framework
 const app = express();
 const bodyParser = require("body-parser");

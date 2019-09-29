@@ -2,15 +2,37 @@ const express = require("express");
 const router = express.Router();
 const Campground = require("../models/campground");
 const middleware = require("../middleware"); //index.js files automatically required when parent folder required
-var NodeGeocoder = require("node-geocoder");
+const multer = require("multer");
+//FILE UPLOAD LOGIC via Multer - storage puts current date at start of filename
+var storage = multer.diskStorage({
+    filename: function(req, file, callback) {
+        callback(null, Date.now() + file.originalname);
+    }
+});
+var imageFilter = function(req, file, cb){
+    //accepts only image files of set types
+    if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/i)) {
+        return cb(new Error('Only image files are allowed!'), false);
+    }
+    cb(null, true);
+};
+var upload = multer({storage: storage, fileFilter: imageFilter});
+//CLOUDINARY LOGIC
+var cloudinary = require("cloudinary");
+cloudinary.config({
+    cloud_name: 'sippingcoffeeeveryday',
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
+//=========MAPS GEOCODE INFO===========
+var NodeGeocoder = require("node-geocoder");
 var options = {
     provider: 'google',
     httpAdapter: 'https',
     apiKey: process.env.GEOCODER_API_KEY,
     formatter: null
 };
-
 var geocoder = NodeGeocoder(options);
 
 // INDEX ROUTE - show all campgrounds
