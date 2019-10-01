@@ -24,3 +24,20 @@
     height: 40vh;
     width: 100%;
 }
+
+/* new campground image upload buttons/labels */
+.upload-image {
+    display: flex;
+    flex-direction: row;
+    margin: 0;
+    align-items: center;
+}
+.upload-image label {
+    width: 40%;
+    text-align: start;
+}
+#image {
+    display: flex;
+    border: none;
+    padding: 0;
+}
