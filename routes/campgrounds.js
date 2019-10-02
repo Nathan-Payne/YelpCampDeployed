@@ -46,7 +46,7 @@ router.get("/", (req, res) => {
 });
 // CREATE ROUTE - add new campground to database    //can refactor code to use campground[] object in the body
 router.post("/", middleware.isLoggedin, upload.single('image'), (req, res) => {
-    cloudinary.v2.uploader.upload(req.file.path, function(err, result){
+    cloudinary.v2.uploader.upload(req.file.path, {folder: "yelp_camp/"}, function(err, result){
         if (err){
             req.flash('error', "Can not upload image, try again later.");
             return res.redirect('back');
