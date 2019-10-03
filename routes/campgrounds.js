@@ -45,6 +45,7 @@ router.get("/", (req, res) => {
     });
 });
 // CREATE ROUTE - add new campground to database    //can refactor code to use campground[] object in the body
+//upload.single('image') middleware uploads image if file present in request
 router.post("/", middleware.isLoggedin, upload.single('image'), (req, res) => {
     cloudinary.v2.uploader.upload(req.file.path, {folder: "yelp_camp/"}, function(err, result){
         if (err){
@@ -53,6 +54,7 @@ router.post("/", middleware.isLoggedin, upload.single('image'), (req, res) => {
         } 
         const name = req.body.name;
         const imageURL = result.secure_url; //from cloudinary result object
+        const imageID = resukt.public_id //from Cloudinary - used to find, delete and update images in cloudinary
         const desc = req.body.description;
         let author = {
             id:req.user._id,
@@ -69,7 +71,7 @@ router.post("/", middleware.isLoggedin, upload.single('image'), (req, res) => {
             var lat = data[0].latitude;
             var lng = data[0].longitude;
             var location = data[0].formattedAddress;
-            var newCampground = {name: name, image: imageURL, description: desc, price: price, author:author, location: location, lat: lat, lng: lng};
+            var newCampground = {name: name, image: imageURL, imageID: imageID, description: desc, price: price, author:author, location: location, lat: lat, lng: lng};
             // Create a new campground and save to DB
             Campground.create(newCampground, function(err, newlyCreated){
                 if(err){
@@ -113,7 +115,7 @@ router.get("/:id/edit", middleware.checkCampgroundOwnership, (req, res)=>{
 });
 
 //=========UPDATE campground route==========
-router.put("/:id", middleware.checkCampgroundOwnership, (req, res)=>{
+router.put("/:id", middleware.checkCampgroundOwnership, upload.single('image'), (req, res)=>{
 //find and update correct campground -findByIdAndUpdate needs (id, [data to update], callback)
 //-can use req.body.campground due to object campground[name]..etc. in edit.ejs
     geocoder.geocode(req.body.location, function(err, data){
@@ -121,15 +123,38 @@ router.put("/:id", middleware.checkCampgroundOwnership, (req, res)=>{
             req.flash('error', 'Invalid address');
             return res.redirect('back');
         }
-        req.body.campground.lat = data[0].latitude;
-        req.body.campground.lng = data[0].longitude;
-        req.body.campground.location = data[0].formattedAddress;
+        req.body.lat = data[0].latitude;
+        req.body.lng = data[0].longitude;
+        req.body.location = data[0].formattedAddress;
 
-        Campground.findByIdAndUpdate(req.params.id, req.body.campground, (err, updatedCampground)=>{
+        Campground.findById(req.params.id, (err, campground)=>{
             if(err){
                 req.flash("error", err.message);
                 res.redirect("back");
             } else {
+                if (req.file) {
+                    cloudinary.v2.uploader.destroy(campground.imageID, function(err){ //doing nothing with result of destroy method, hence no duplicate variables
+                        if(err){
+                            req.flash("error", err.message);
+                            return res.redirect("back");
+                        }
+                        cloudinary.v2.uploader.upload(req.file.path, function(err, result){
+                            if(err){
+                                req.flash("error", err.message);
+                                return res.redirect("back");
+                            }
+                            //add new cloudinary url and public ID from returned result obj to campground object in database
+                            campground.imageID = result.public_id;
+                            campground.image = result.secure_url;
+                        });
+                    });
+                }
+                campground.name = req.body.name; //req.body.name will always exist therefore dont need to check if it does before updating
+                campground.description = req.body.description;
+                campground.location = req.body.location;
+                campground.price = req.body.price;
+
+                campground.save(); //save campground in database
                 req.flash("success","Successfully Updated!");
                 res.redirect("/campgrounds/" + req.params.id);
             }
