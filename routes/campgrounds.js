@@ -54,7 +54,7 @@ router.post("/", middleware.isLoggedin, upload.single('image'), (req, res) => {
         } 
         const name = req.body.name;
         const imageURL = result.secure_url; //from cloudinary result object
-        const imageID = resukt.public_id //from Cloudinary - used to find, delete and update images in cloudinary
+        const imageID = result.public_id //from Cloudinary - used to find, delete and update images in cloudinary
         const desc = req.body.description;
         let author = {
             id:req.user._id,
@@ -115,7 +115,7 @@ router.get("/:id/edit", middleware.checkCampgroundOwnership, (req, res)=>{
 });
 
 //=========UPDATE campground route==========
-router.put("/:id", middleware.checkCampgroundOwnership, upload.single('image'), (req, res)=>{
+router.put("/:id", middleware.checkCampgroundOwnership, upload.single('image'), function(req, res){
 //find and update correct campground -findByIdAndUpdate needs (id, [data to update], callback)
 //-can use req.body.campground due to object campground[name]..etc. in edit.ejs
     geocoder.geocode(req.body.location, function(err, data){
@@ -127,28 +127,23 @@ router.put("/:id", middleware.checkCampgroundOwnership, upload.single('image'), 
         req.body.lng = data[0].longitude;
         req.body.location = data[0].formattedAddress;
 
-        Campground.findById(req.params.id, (err, campground)=>{
+        Campground.findById(req.params.id, async function(err, campground){
             if(err){
                 req.flash("error", err.message);
                 res.redirect("back");
             } else {
                 if (req.file) {
-                    cloudinary.v2.uploader.destroy(campground.imageID, function(err){ //doing nothing with result of destroy method, hence no duplicate variables
-                        if(err){
-                            req.flash("error", err.message);
-                            return res.redirect("back");
-                        }
-                        cloudinary.v2.uploader.upload(req.file.path, function(err, result){
-                            if(err){
-                                req.flash("error", err.message);
-                                return res.redirect("back");
-                            }
-                            //add new cloudinary url and public ID from returned result obj to campground object in database
-                            campground.imageID = result.public_id;
-                            campground.image = result.secure_url;
-                        });
-                    });
-                }
+                    try {
+                        await cloudinary.v2.uploader.destroy(campground.imageID); //wait for this to finish before moving to next line of code
+                        let result = await cloudinary.v2.uploader.upload(req.file.path, {folder: "yelp_camp/"});
+                        //add new cloudinary url and public ID from returned result obj to campground object in database
+                        campground.image = result.secure_url;
+                        campground.imageID = result.public_id;
+                    } catch (err) {
+                        req.flash("error", err.message);
+                        return res.redirect("back");
+                    };
+                };
                 campground.name = req.body.name; //req.body.name will always exist therefore dont need to check if it does before updating
                 campground.description = req.body.description;
                 campground.location = req.body.location;
@@ -164,11 +159,19 @@ router.put("/:id", middleware.checkCampgroundOwnership, upload.single('image'), 
 
 //===========DELETE/DESTROY ROUTE=============
 router.delete("/:id", middleware.checkCampgroundOwnership, (req, res)=>{
-    Campground.findByIdAndRemove(req.params.id, (err)=>{
+    Campground.findById(req.params.id, async function(err, campground){
         if(err){
-            res.redirect("/campgrounds")
-        } else {
-            res.redirect("/campgrounds")
+            req.flash("error", err.message);
+            return res.redirect("back");
+        }
+        try {
+            await cloudinary.v2.uploader.destroy(campground.imageID);
+            campground.remove();
+            req.flash('success', 'Campground deleted successfully')
+            res.redirect('/campgrounds');
+        } catch (err) {
+            req.flash("error", err.message);
+            return res.redirect("back");   
         };
     });
 });
